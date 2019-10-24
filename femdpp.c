@@ -23,8 +23,7 @@ INT event_buffer_size = 4 * 800000;            /* buffer size to hold events */
                                   //  this buffer - so make large enough
                                   // for several DMA buffers of data
 #define MDPP16_NUMCHAN 16
-#define MDPP16_BASE       0x100000   /* set by jumpers on board */
-//#define MDPP16_BASE     0x00100000   /* set by jumpers on board - orginal*/
+#define MDPP16_BASE     0x00100000   /* set by jumpers on board */
 const int mdpp16_addr = MDPP16_BASE; /* VME base address */
 int   hVme;                           /* Vme handle */
 extern HNDLE hDB;                     /* Odb Handle */
@@ -157,7 +156,7 @@ INT frontend_init()
     printf("config_mdpp16: Reset ...\n");
     ss_sleep(500); // 200ms minimum wait
 
-    if( mdpp16_config() ){ return(-1); }
+//    if( mdpp16_config() ){ return(-1); }
     return SUCCESS;
 }
 
@@ -279,7 +278,7 @@ void set_w(const char* desc, unsigned int offset, unsigned int data)
     printf("done\n");
 }
 
-int mdpp16_config()
+int mdpp16_config(int hVme, unsigned mdpp16_addr)
 {
     int version = mdpp16_version(hVme, mdpp16_addr);
     if( version != -1 ){
