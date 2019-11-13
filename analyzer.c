@@ -2,9 +2,12 @@
 #include <string.h>
 #include <time.h>
 #include <iostream>
+#include <pthread.h>
 
 #include "midas.h"
 #include "experim.h"
+#include "web_server.h"
+
 
 RUNINFO runinfo;
 time_t tBOR=0;
@@ -59,15 +62,30 @@ ANALYZE_REQUEST analyze_request[] = {
 
 /*--=================-------------------------------------------------*/
 
-INT analyzer_exit(){ return CM_SUCCESS; }
+
 //INT ana_begin_of_run(INT run_number, char *error){ return CM_SUCCESS; }
 INT ana_pause_run(INT run_number, char *error){ return CM_SUCCESS; }
 INT ana_resume_run(INT run_number, char *error){ return CM_SUCCESS; }
 INT analyzer_loop(){ return CM_SUCCESS; }
 // INT ana_end_of_run(INT run_number, char *error){ return CM_SUCCESS; }
-INT analyzer_init(){ return SUCCESS; }
+
+static pthread_t web_thread;
+
+INT analyzer_init(){
+    int a1=1;
+    pthread_create(&web_thread, NULL,(void* (*)(void*))web_server_main, &a1);
+    return SUCCESS;
+  }
 
 
+volatile int shutdown_webserver;
+
+INT analyzer_exit(){
+   printf("waiting for server to shutdown ...\n");
+   shutdown_webserver = 1;
+   pthread_join(web_thread, NULL);
+  return CM_SUCCESS;
+}
 
 INT ana_begin_of_run(INT run_number, char *error) {
   HNDLE hDB, hKey;
@@ -86,7 +104,6 @@ INT ana_begin_of_run(INT run_number, char *error) {
 
   return SUCCESS;
 }
-
 
 
 INT ana_end_of_run(INT run_number, char *error)

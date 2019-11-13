@@ -73,7 +73,7 @@ EQUIPMENT equipment[] = {
     },
 
 #ifdef use_scaler
-    {"Scaler",                /* equipment name */
+    {"MDPP16_Scaler",                /* equipment name */
      {2, 0,                   /* event ID, trigger mask */
       "SYSTEM",               /* event buffer */
       EQ_PERIODIC ,           /* equipment type */

@@ -40,8 +40,14 @@ analyzer: $(LIB64_DIR)/rmana.o $(LIB64_DIR)/libmidas.a analyzer.o anmdpp.o
 analyzer.o: analyzer.c
 	$(CXX) $(CFLAGS) $(ROOTCFLAGS) -o $@ -c $<
 
-anmdpp.o: anmdpp.c
+anmdpp.o: anmdpp.c web_server.h histogram.h
 	$(CXX) $(ROOTCFLAGS) $(CFLAGS) -o $@ -c $<
 
+web_server.o: web_server.c web_server.h histogram.h
+	$(CC) $(USERFLAGS) $(CFLAGS) $(OSFLAGS) -o $@ -c $<
+
+histogram.o: histogram.c histogram.h
+	$(CC) $(USERFLAGS) $(CFLAGS) $(OSFLAGS) -o $@ -c $<
+        
 clean::
 	rm -f *.o *~ \#*
