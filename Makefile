@@ -1,23 +1,26 @@
-CC      = gcc
+CC      = g++
 CXX	= g++
-OSFLAGS = -DOS_LINUX -Dextname
+OSFLAGS = -Dextname -fpermissive
 CFLAGS  = -g -Wno-deprecated $(OSFLAGS)
-FLAGS32 = -m32
+#FLAGS32 = -m32
 LIBS    = -lm -lz -lutil -lnsl -lpthread -lrt
 
 DRV_DIR   = $(MIDASSYS)/drivers/vme
 INC_DIR   = $(MIDASSYS)/include
-LIB_DIR   = $(MIDASSYS)/linux-m32/lib
-LIB64_DIR = $(MIDASSYS)/linux/lib
+LIB_DIR   = $(MIDASSYS)/lib
+LIB64_DIR = $(MIDASSYS)/lib
 SRC_DIR   = $(MIDASSYS)/src
-VME_DIR   = /home/olchansk/daq/vmisft-7433-3.4-KO1/vme_universe
-VME_DIR   = /triumfcs/trshare/olchansk/daq/vmisft-7433-3.4-KO1/vme_universe
+VME_DIR   = /usr/local/packages/vme/vmisft-7433-3.6/vme_universe
+#VME_DIR   = /home/olchansk/daq/vmisft-7433-3.4-KO1/vme_universe
+#VME_DIR   = /triumfcs/trshare/olchansk/daq/vmisft-7433-3.4-KO1/vme_universe
 #/home1/midascd /homne
 
 CFLAGS += -g -I$(DRV_DIR) -I. -I$(INC_DIR) -I$(DRV_DIR)/vmic -I$(VME_DIR)/include -L$(VME_DIR)/lib
 
 all: femdpp 
 
+#femdpp: femdpp.o vmicvme_mdpp.o mdpp16.o $(LIB_DIR)/mfe.o $(LIB_DIR)/libmidas.a 
+#	$(CC) $(CFLAGS) $(FLAGS32) -o $@ $^ $(LIBS)
 femdpp: femdpp.o vmicvme_mdpp.o mdpp16.o $(LIB_DIR)/mfe.o $(LIB_DIR)/libmidas.a 
 	$(CC) $(CFLAGS) $(FLAGS32) -o $@ $^ -lvme $(LIBS)
 
