@@ -50,7 +50,7 @@ BANK_LIST trigger_bank_list[] = {
 EQUIPMENT equipment[] = {
 
     {"MDPP16",               /* equipment name */
-     {1, 0,                   /* event ID, trigger mask */
+     {400, 0,                   /* event ID, trigger mask */
       "SYSTEM",               /* event buffer */
 #ifdef USE_INT
       EQ_INTERRUPT,           /* equipment type */
@@ -71,24 +71,6 @@ EQUIPMENT equipment[] = {
      trigger_bank_list,
     },
 
-#ifdef use_scaler
-    {"MDPP16_Scaler",                /* equipment name */
-     {2, 0,                   /* event ID, trigger mask */
-      "SYSTEM",               /* event buffer */
-      EQ_PERIODIC ,           /* equipment type */
-      0,                      /* event source */
-      "MIDAS",                /* format */
-      TRUE,                   /* enabled */
-      RO_RUNNING | RO_TRANSITIONS |   /* read when running and on transitions */
-      RO_ODB,                 /* and update ODB */
-      5000,                  /* read every 5 sec */
-      0,                      /* stop run after this event limit */
-      0,                      /* number of sub events */
-      0,                      /* log history */
-      "", "", "",},
-     read_scaler_event,       /* readout routine */
-    },
-#endif
 
     {""}
 
