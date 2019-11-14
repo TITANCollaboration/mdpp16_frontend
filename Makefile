@@ -1,20 +1,29 @@
-CC      = gcc
 CXX	= g++
 OSFLAGS = -DOS_LINUX -Dextname
-CFLAGS  = -g -Wno-deprecated $(OSFLAGS)
-FLAGS32 = -m32
+CFLAGS  = -g -Wno-deprecated $(OSFLAGS) -fpermissive
 LIBS    = -lm -lz -lutil -lnsl -lpthread -lrt
 
 DRV_DIR   = $(MIDASSYS)/drivers/vme
 INC_DIR   = $(MIDASSYS)/include
+
+#LXEBIT2, if building in vagrant comment this out and uncomment vagrant section..
+CC      = gcc
+FLAGS32 = -m32
 LIB_DIR   = $(MIDASSYS)/linux-m32/lib
 LIB64_DIR = $(MIDASSYS)/linux/lib
-SRC_DIR   = $(MIDASSYS)/src
 VME_DIR   = /home/olchansk/daq/vmisft-7433-3.4-KO1/vme_universe
 VME_DIR   = /triumfcs/trshare/olchansk/daq/vmisft-7433-3.4-KO1/vme_universe
-#/home1/midascd /homne
-
 CFLAGS += -g -I$(DRV_DIR) -I. -I$(INC_DIR) -I$(DRV_DIR)/vmic -I$(VME_DIR)/include -L$(VME_DIR)/lib
+
+############
+
+#Vagrant MIDAS
+#CC      = g++
+#LIB_DIR   = $(MIDASSYS)/lib
+#SRC_DIR   = $(MIDASSYS)/src
+#VME_DIR  = /usr/local/packages/vme/vmisft-7433-3.6/vme_universe
+#CFLAGS += -g -I$(DRV_DIR) -I. -I$(INC_DIR) -I$(DRV_DIR)/vmic -I$(VME_DIR)/include -L$(VME_DIR)/lib -L$(LIB_DIR)
+############
 
 all: femdpp 
 
