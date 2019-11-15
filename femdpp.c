@@ -32,7 +32,8 @@ unsigned *evt_buffer, evt_bufpos;
 int ierror;
 
 /*-- Function declarations -----------------------------------------*/
-INT frontend_init (             ), frontend_exit (             );
+INT frontend_init();
+INT frontend_exit (             );
 INT  begin_of_run ( INT, char * ), end_of_run    ( INT, char * );
 INT     pause_run ( INT, char * ), resume_run    ( INT, char * );
 INT frontend_loop (             );
@@ -86,14 +87,14 @@ INT interrupt_configure ( INT cmd, INT source, PTYPE adr){ return SUCCESS; }
 
 void seq_callback(INT hDB, INT hseq, void *in)
 {
-    printf("odb ... sis3302 settings touched\n");
+    printf("odb ... MDPP16 settings touched\n");
 }
 
 /////////////////////////////////////////////////////////////////////
 // each equipment/XXX/settings odb tree can be saved to experim.h
 // experim.h then contains a structure  XXX_SETTINGS
 //           also a string definition   XXX_SETTINGS_STR
-// the structure can be populated from the odb with db_open_record, 
+// the structure can be populated from the odb with db_open_record,
 //    the string is created by the command:  XXX_SETTINGS_STR(NAME);
 //    the string is only used to pass to db_create_record
 //       which will remake the odb tree if altered/deleted
@@ -107,9 +108,9 @@ INT frontend_init()
     int size, status;
     char set_str[80];
     HNDLE hSet;
-
+    printf("Got here 1\n");
     size = sizeof(MDPP16_SETTINGS);
-    
+
     sprintf(set_str, "/Equipment/MDPP16/Settings");
     status = db_create_record(hDB, 0, set_str, strcomb(mdpp16_settings_str));
     if( (status = db_find_key (hDB, 0, set_str, &hSet)) != DB_SUCCESS ){
@@ -119,6 +120,8 @@ INT frontend_init()
     			       MODE_READ, seq_callback, NULL)) != DB_SUCCESS ){
       cm_msg(MINFO,"FE","Failed to enable ts hotlink", set_str);
     }
+    printf("Got here 2\n");
+
     mvme_open(&vme_handle, 0);
     if( vme_handle == NULL ){
 	printf("VME init failed\n");
@@ -153,7 +156,7 @@ INT poll_event(INT source, INT count, BOOL test)
 	    words = mdpp16_read_fifo_words(hVme, mdpp16_addr);
 	}
 	if( words && !test ){ return words; }
-    }  
+    }
     return 0;
 }
 
@@ -174,7 +177,6 @@ INT read_trigger_event(char *pevent, INT off)
 {
     DWORD *pdata;
     int i, words;
-
     words = mdpp16_read_fifo_words(hVme, mdpp16_addr);
     if( words <= 0 ){ return(0); }
     if( words > max_event_size ){
@@ -248,8 +250,8 @@ void set_wr(const char* desc, unsigned int offset, unsigned int data)
 
     unsigned int val = 0;
     vme_A32D16_read(hVme, mdpp16_addr+offset,  &val);
-    data != val 
-	? printf("NOT succesful; reread value: %d, expected: %d\n", val, data) 
+    data != val
+	? printf("NOT succesful; reread value: %d, expected: %d\n", val, data)
 	: printf("successful\n");
 }
 
@@ -270,7 +272,7 @@ int mdpp16_config(int hVme, unsigned mdpp16_addr)
 	return(-1);
     }
     printf("setting MDPP16 values\n");
-
+    mdpp16.pulser_ctrl = 1;
     // in multi-event-modes, [48k]buffer read will terminate(berr)
     //    at first end of event after max_datalen
     //    in this case - write READOUT_RESET to allow new read
@@ -284,7 +286,7 @@ int mdpp16_config(int hVme, unsigned mdpp16_addr)
     set_wr("MDPP16_ADC_RESOLUTION", MDPP16_ADC_RESOLUTION,mdpp16.adc_resln);
     set_wr("MDPP16_TRIG_SOURCE",    MDPP16_TRIG_SOURCE,   mdpp16.trig_source);
     set_wr("MDPP16_NIM2_INPUT",     MDPP16_NIM2_INPUT,    mdpp16.nim2_input);
-    
+
     printf("setting MDPP16 channel 0 and 1 values ...\n");
     set_w( "MDPP16_CHANPAIR_SELECT",MDPP16_CHANPAIR_SELECT, 0x4);
 

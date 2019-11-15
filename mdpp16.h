@@ -95,4 +95,3 @@ int mdpp16_version        (int h, unsigned module_addr);
 int mdpp16_acq_start      (int h, unsigned module_addr);
 int mdpp16_acq_stop       (int h, unsigned module_addr);
 int mdpp16_read_fifo_words(int h, unsigned module_addr);
-int mdpp16_config(int hVme, unsigned mdpp16_addr);
