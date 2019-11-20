@@ -15,6 +15,7 @@ char *frontend_file_name = __FILE__;                    /* Don't change this */
 BOOL frontend_call_loop  = FALSE; /* call frontend_loop periodically if TRUE */
 INT display_period       = 0;   /* Frontend status page update interval [ms] */
 INT max_event_size       = 524288;      /* max event size from this frontend */
+INT max_single_event_size     = 47369;
 INT max_event_size_frag  = 5 * 1024*1024; /* max event fragmented event size */
 INT event_buffer_size = 4 * 800000;            /* buffer size to hold events */
 
@@ -173,32 +174,46 @@ void dump_event(int *data, int size)
 
 static int current_chan=0, bank1_flag = 1, bank_done=1;
 static int readout_counter=0;
+
 INT read_trigger_event(char *pevent, INT off)
 {
     DWORD *pdata;
-    int i, words;
+    unsigned int i, words = 0;
+    unsigned int test = 0;
     words = mdpp16_read_fifo_words(hVme, mdpp16_addr);
-    if( words <= 0 ){ return(0); }
-    if( words > max_event_size ){
-	printf("read_trigger_event: event-size[%d] > limit[%d]\n",
-	       words, max_event_size);
-	for(i=0; i<words; i++){
-	    // read and discard data (do not inc pdata)
-	    vme_A32D32_read(hVme, mdpp16_addr, pdata);
-	}
-	vme_A32D16_write(hVme, mdpp16_addr+MDPP16_READOUT_RESET,  0);
-	return(0);
-    }
-
+    printf("Number of words : %i\n", words);
+    if ( words <= 0 ) { return (0); }
     bk_init(pevent);                               /* init bank structure */
     bk_create(pevent, "MDPP", TID_DWORD, (void **)&pdata); /* create SCLR bank */
-    for(i=0; i<words; i++){
-	vme_A32D32_read(hVme, mdpp16_addr, pdata++);
-    }
-    bk_close(pevent, pdata);                      /* close scaler bank */
-    vme_A32D16_write(hVme, mdpp16_addr+MDPP16_READOUT_RESET,  0);
-    readout_counter+=1;
+    vme_A32D16_read(hVme, mdpp16_addr + MDPP16_DATALEN_FORMAT, &test);
+    //vme_A32D16_read(hVme, mdpp16_addr + MDPP16_PULSER_AMPLITUDE, &test);
+
+//    printf("My DATA LEN thinggie!! : %i\n", test);
+//    if ( words > max_single_event_size ) {
+        printf("read_trigger_event: event-size[%d] > limit[%d]\n", words, max_single_event_size);
+        for (i = 0; i <= words+1; i++) {  // Not super sure about the words+1 it mentions you should read data len +1
+            vme_A32D32_read(hVme, mdpp16_addr, pdata++);
+
+        }
+        printf("Writing reset...");
+        vme_A32D16_write(hVme, mdpp16_addr + MDPP16_READOUT_RESET,  0);
+        printf("Done\n");
+     //   return (0);
+            bk_close(pevent, pdata);                      /* close scaler bank */
+
+  //  } else {
+
+
+    //for (i = 0; i < words; i++) {
+     //   vme_A32D32_read(hVme, mdpp16_addr, pdata++);
+    //}
+   // bk_close(pevent, pdata);                      /* close scaler bank */
+   // vme_A32D16_write(hVme, mdpp16_addr + MDPP16_READOUT_RESET,  0);
+
+//}
+    readout_counter += 1;
     printf("Event: %8d\r", readout_counter);
+    printf("Block Size : %i\n", bk_size(pevent));
     return bk_size(pevent);
 }
 
@@ -273,6 +288,9 @@ int mdpp16_config(int hVme, unsigned mdpp16_addr)
     }
     printf("setting MDPP16 values\n");
     mdpp16.pulser_ctrl = 1;
+    mdpp16.multi_event = 3;
+    mdpp16.max_datalen = 30;
+
     // in multi-event-modes, [48k]buffer read will terminate(berr)
     //    at first end of event after max_datalen
     //    in this case - write READOUT_RESET to allow new read
